@@ -60,7 +60,6 @@ jobs:
           docker run -d \
             --name    ${{ inputs.service_name }} \
             --restart always \
-            --network nestbook-net \
             -e APP_PORT=${{ vars.APP_PORT }} \
             -e DB_HOST=${{ vars.DB_HOST }} \
             -e DB_PORT=${{ vars.DB_PORT }} \
