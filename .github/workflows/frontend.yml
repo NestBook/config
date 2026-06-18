@@ -1,12 +1,10 @@
 name: CI/CD Pipeline Frontend
-
 on:
   workflow_call:
     inputs:
       service_name:
         required: true
         type: string
-
 jobs:
   build:
     name: Build
@@ -15,10 +13,13 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v4
-
       - name: Build image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:${{ github.sha }} .
+          docker build \
+            --build-arg VITE_API_URL=${{ vars.VITE_API_URL }} \
+            --build-arg VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }} \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:${{ github.sha }} \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:latest .
 
   push:
     name: Push
@@ -29,14 +30,10 @@ jobs:
       - name: Login
         run: |
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-
       - name: Push
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:${{ github.sha }}
-          docker tag  ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:${{ github.sha }} \
-                      ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:latest
-
       - name: Logout
         if: always()
         run: docker logout
@@ -45,13 +42,13 @@ jobs:
     name: Deploy
     runs-on:
       group: production
+    needs: push
     if: startsWith(github.ref, 'refs/tags/')
     environment: production
     steps:
       - name: Login
         run: |
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-
       - name: Deploy
         run: |
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:latest
@@ -61,10 +58,7 @@ jobs:
             --name    ${{ inputs.service_name }} \
             --restart always \
             -p 80:80 \
-            -e VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }} \
-            -e VITE_API_URL=${{ vars.VITE_API_URL }} \
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:latest
-
       - name: Logout
         if: always()
         run: docker logout
