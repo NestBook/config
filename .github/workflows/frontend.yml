@@ -61,6 +61,8 @@ jobs:
             --name    ${{ inputs.service_name }} \
             --restart always \
             -p 80:80 \
+            -e VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }} \
+            -e VITE_API_URL=${{ vars.VITE_API_URL }} \
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:latest
 
       - name: Logout
