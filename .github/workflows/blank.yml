@@ -79,6 +79,7 @@ jobs:
             -e REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \
             -e LOG_OUT_DIR=${{ vars.LOG_OUT_DIR }} \
             -e LOG_LEVEL=${{ vars.LOG_LEVEL }} \
+            -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:latest
 
       - name: Logout
