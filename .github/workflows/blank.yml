@@ -81,6 +81,12 @@ jobs:
             -e LOG_OUT_DIR=${{ vars.LOG_OUT_DIR }} \
             -e LOG_LEVEL=${{ vars.LOG_LEVEL }} \
             -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+            -e MAIL_HOST=${{ secrets.MAIL_HOST }} \
+            -e MAIL_PORT=${{ secrets.MAIL_PORT }} \
+            -e MAIL_SECURE=${{ secrets.MAIL_SECURE }} \
+            -e MAIL_USER=${{ secrets.MAIL_USER }} \
+            -e MAIL_PASS=${{ secrets.MAIL_PASS }} \
+            -e MAIL_FROM=${{ secrets.MAIL_FROM }} \
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:latest
 
       - name: Logout
